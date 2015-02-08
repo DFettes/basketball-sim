@@ -7,4 +7,5 @@ class Team():
     possesions = 0
 
     def __init__(self, name, players):
+        self.name = name
         self.players = players

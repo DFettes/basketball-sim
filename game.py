@@ -2,11 +2,52 @@ import player
 from random import uniform, random, randint
 from datetime import datetime, timedelta
 
-def quarter(t1, t2=None):
-    # Initiate game clock to 12:00 for each quarter. After each possesion
-    # subtract the time used for that possession until no time left
-    game_clock = timedelta(minutes = 12)
-    turn = 0
+def game(t1, t2):
+    quarters_played = 0
+    t1.points = 0
+    t1.possesions = 0
+    t2.points = 0
+    t2.possesions = 0
+
+    # Opening tip
+    rand_jumpball = random()
+    if rand_jumpball < 0.5:
+        turn = 0
+    else:
+        turn = 1
+    q1 = quarter(t1, t2, turn)
+
+    # Team who looses tip gets possesion to start 2nd and 3rd
+    if turn == 0:
+        q2 = quarter(t1, t2, 1)
+        q3 = quarter(t1, t2, 1)
+        q4 = quarter(t1, t2, 1)
+    else:
+        q2 = quarter(t1, t2, 0)
+        q3 = quarter(t1, t2, 0)
+        q4 = quarter(t1, t2, 1)
+
+    quarters_played = 4
+    # If score tied after 4 quarters, start each overtime with jump ball
+    while t1.points == t2.points:
+        rand_jumpball = random()
+        if rand_jumpball < 0.5:
+            turn = 0
+        else:
+            turn = 1
+        ot = quarter(t1, t2, turn, ot=True)
+        quarters_played += 1
+
+    return quarters_played
+
+
+def quarter(t1, t2, turn, ot=False):
+    # Initiate game clock to 12:00 for each quarter (5:00 for OT). After each
+    # possesion subtract the time used for that possession until no time left
+    if ot:
+        game_clock = timedelta(minutes = 5)
+    else:
+        game_clock = timedelta(minutes = 12)
 
     # Alternate possesions between teams
     while game_clock > timedelta(0):
@@ -41,18 +82,14 @@ def possesion(team, game_clock=timedelta(minutes = 12)):
     if random_cross_half < 65:
         points, passed_to, shot_clock = play(team.players[0], team,
                                              shot_clock=shot_clock)
-        print 'START PLAYER:', team.players[0].name
     elif random_cross_half < 85:
         points, passed_to, shot_clock = play(team.players[1], team,
                                              shot_clock=shot_clock)
-        print 'START PLAYER:', team.players[1].name
     else:
         points, passed_to, shot_clock = play(team.players[2], team,
                                              shot_clock=shot_clock)
-        print 'START PLAYER:', team.players[2].name
 
     while shot_clock > 0 and passed_to != None:
-        print 'PASSED TO:', team.players[passed_to].name
         points, passed_to, shot_clock = play(team.players[passed_to], shot_clock=shot_clock)
 
     #print 'POINTS:', points
@@ -86,6 +123,7 @@ def play(off, deff=None, shot_clock=24):
         else:
             #print 'DRIVE BY:', off.name
             points = attempt_drive(off)
+    off.points += points
 
     return points, passed_to, shot_clock
 
