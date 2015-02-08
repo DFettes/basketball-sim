@@ -13,14 +13,14 @@ def main():
     t1 = team.Team('Simcoe Sabres', [p1, p2, p3, p4, p5])
     t2 = team.Team('McMaster Mauraduers', [p1, p2, p3, p4, p5])
 
-    sim_quarter(t1)
+    sim_quarter(t1, t2)
 
 
-def sim_quarter(team):
-    points, possesions = game.quarter(team)
+def sim_quarter(team1, team2):
+    game.quarter(team1, team2)
     print ''
-    print 'TOTAL POINTS:', points
-    print 'POINTS/100POSS:', 100*float(points)/possesions
+    print 'Team1:', team1.points
+    print 'Team2:', team2.points
 
 
 def sim_possesions(team):

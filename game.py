@@ -6,18 +6,22 @@ def quarter(t1, t2=None):
     # Initiate game clock to 12:00 for each quarter. After each possesion
     # subtract the time used for that possession until no time left
     game_clock = timedelta(minutes = 12)
-    quarter_points = 0
-    possesions = 0
+    turn = 0
 
+    # Alternate possesions between teams
     while game_clock > timedelta(0):
         #print 'GAME CLOCK:', game_clock
-        points, possesion_time = possesion(t1, game_clock)
+        if turn % 2 == 0:
+            points, possesion_time = possesion(t1, game_clock)
+            t1.points += points
+            t1.possesions += 1
+        else:
+            points, possesion_time = possesion(t2, game_clock)
+            t2.points += points
+            t2.possesions += 1
         diff = timedelta(seconds = possesion_time)
         game_clock -= diff
-        quarter_points += points
-        possesions += 1
-
-    return quarter_points, possesions
+        turn += 1
 
 
 def possesion(team, game_clock=timedelta(minutes = 12)):
