@@ -7,15 +7,34 @@ class Player():
     name = ''
     position = 0
 
+    # Player skills
     shooting = {'close': 0, 'mid': 0, 'long': 0, 'ft': 0}
     driving = {'layups': 0, 'dunking': 0}
     skills = {'speed': 0, 'dribbling': 0, 'passing': 0}
     defense = {'rebounding': 0, 'defense': 0, 'blocking': 0, 'stealing': 0}
 
+    # Player tendencies
     o_tendencies = {'shoot_pass': 0, 'drive_jumper': 0, 'layup_dunk': 0}
     d_tendencies = {'go_for_steal': 0, 'go_for_block': 0}
     shooting_range = {'close': 0, 'mid': 0, 'long': 0}
     passing_choice = [0, 0, 0, 0, 0]
+
+    # Player stats
+    games = 0
+    fga = 0
+    fg2a = 0
+    fg3a = 0
+    fta = 0
+    fgm = 0
+    fg2m = 0
+    fg3m = 0
+    ftm = 0
+    points = 0
+    assists = 0
+    rebounds = 0
+    turnovers = 0
+    steals = 0
+    blocks = 0
 
     def __init__(self, name, position, shooting=toks.DEF_SHOOTING,
                  driving=toks.DEF_DRIVING, skills=toks.DEF_SKILLS,

@@ -28,30 +28,16 @@ def sim_test(player):
     print player.shooting
     print player.driving
 
-    missed2 = 0
-    made2 = 0
-    missed3 = 0
-    made3 = 0
-    passes = 0
-
     for i in range(10000):
         points, result = game.play(player)
-        if result == 'MADE 3':
-            made3 += 1
-        elif result == 'MISSED 3':
-            missed3 += 1
-        elif result.startswith('MADE'):
-            made2 += 1
-        elif result.startswith('MISSED'):
-            missed2 += 1
-        else:
-            passes += 1
 
-    print '2ptFG: %s/%s' % (made2, (made2+missed2))
-    print '3ptFG: %s/%s' % (made3, (made3+missed3))
-    print 'FGp: %s' % ((made2+made3)/float(missed2+missed3+made2+made3))
-    print '3FGp: %s' % (made3/float(missed3+made3))
-    print 'Passes: %s' % passes
+    player.fga = player.fg2a + player.fg3a
+    player.fgm = player.fg2m + player.fg3m
+    print 'FG: %s/%s' % (player.fgm, player.fga)
+    print '2ptFG: %s/%s' % (player.fg2m, player.fg2a)
+    print '3ptFG: %s/%s' % (player.fg3m, player.fg3a)
+    print 'FGp: %s' % (player.fgm/float(player.fga))
+    print '3FGp: %s' % (player.fg3m/float(player.fg3a))
 
 if __name__ == '__main__':
     main()
