@@ -35,26 +35,24 @@ class Player():
     turnovers = 0
     steals = 0
     blocks = 0
+    passes = 0
 
-    def __init__(self, name, position, shooting=toks.DEF_SHOOTING,
-                 driving=toks.DEF_DRIVING, skills=toks.DEF_SKILLS,
-                 defense=toks.DEF_DEFENSE, offensive=toks.DEF_OFFENSIVE,
-                 defensive=toks.DEF_DEFENSIVE, shot_range=toks.DEF_SHOT_RANGE,
-                 passing=toks.DEF_PASSING):
-
+    def __init__(self, name, position, floor=50, ceiling=100):
         self.name = name
         self.position = position
         self.position_string = POSITIONS[position]
 
-        self.shooting = shooting
-        self.driving = driving
-        self.skills = skills
-        self.defense = defense
+        skills_array = randomize_skills(floor, ceiling)
+        self.shooting = skills_array[0]
+        self.driving = skills_array[1]
+        self.skills = skills_array[2]
+        self.defense = skills_array[3]
 
-        self.o_tendencies = offensive
-        self.d_tendencies = defensive
-        self.shooting_range = shot_range
-        self.passing_choice = passing
+        tendencies_array = randomize_tendencies(position)
+        self.o_tendencies = tendencies_array[0]
+        self.d_tendencies = tendencies_array[1]
+        self.shooting_range = tendencies_array[2]
+        self.passing_choice = tendencies_array[3]
 
 
     def print_player(self):
@@ -69,43 +67,54 @@ class Player():
         print self.shooting_range
         print self.passing_choice
 
-def random_player(name, position, floor=50, ceiling=100):
-    p = Player(name, position)
+def randomize_skills(floor=50, ceiling=100):
+    shooting = {}
+    driving = {}
+    skills = {}
+    defense = {}
 
-    for key in p.shooting:
-        p.shooting[key] = random.randint(floor, ceiling)
-    for key in p.driving:
-        p.driving[key] = random.randint(floor, ceiling)
-    for key in p.skills:
-        p.skills[key] = random.randint(floor, ceiling)
-    for key in p.defense:
-        p.defense[key] = random.randint(floor, ceiling)
+    for key in toks.DEF_SHOOTING:
+        shooting[key] = random.randint(floor, ceiling)
+    for key in toks.DEF_DRIVING:
+        driving[key] = random.randint(floor, ceiling)
+    for key in toks.DEF_SKILLS:
+        skills[key] = random.randint(floor, ceiling)
+    for key in toks.DEF_DEFENSE:
+        defense[key] = random.randint(floor, ceiling)
 
-    for key in p.o_tendencies:
-        p.o_tendencies[key] = random.randint(0, 100)
-    for key in p.d_tendencies:
-        p.d_tendencies[key] = random.randint(0, 100)
+    return shooting, driving, skills, defense
+
+def randomize_tendencies(position):
+    o_tendencies = {}
+    d_tendencies = {}
+    shooting_range = {}
+
+    for key in toks.DEF_OFFENSIVE:
+        o_tendencies[key] = random.randint(25, 75)
+    for key in toks.DEF_DEFENSIVE:
+        d_tendencies[key] = random.randint(25, 75)
 
     total = 0
     shot_range = []
     for i in range(3):
-        value = random.randint(0, 100)
+        value = random.randint(20, 80)
         total += value
         shot_range.append(value)
-    p.shooting_range['close'] = int(100*float(shot_range[0]) / total)
-    p.shooting_range['long'] = int(100*float(shot_range[1]) / total)
-    p.shooting_range['long'] = int(100*float(shot_range[2]) / total)
-    total = 0
+    shooting_range['close'] = 100*float(shot_range[0]) / total
+    shooting_range['mid'] = 100*float(shot_range[1]) / total
+    shooting_range['long'] = 100*float(shot_range[2]) / total
 
+    total = 0
+    passing_choice = []
     for i in range(5):
-        if i == p.position - 1:
+        if i == position - 1:
             value = 0
         else:
-            value = random.randint(0, 100)
+            value = random.randint(20, 80)
             total += value
-        p.passing_choice[i] = value
+        passing_choice.append(value)
     for i in range(5):
-        if i != p.position - 1:
-            p.passing_choice[i] = int(100*float(p.passing_choice[i]) / total)
+        if i != position - 1:
+            passing_choice[i] = 100*float(passing_choice[i]) / total
 
-    return p
+    return o_tendencies, d_tendencies, shooting_range, passing_choice
