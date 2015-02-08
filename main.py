@@ -11,12 +11,22 @@ def main():
     p5 = player.Player('Janarth K-something', 5, floor=70, ceiling=90)
 
     t1 = team.Team('Simcoe Sabres', [p1, p2, p3, p4, p5])
-    sim_possesions(t1)
+    t2 = team.Team('McMaster Mauraduers', [p1, p2, p3, p4, p5])
+
+    sim_quarter(t1)
+
+
+def sim_quarter(team):
+    points, possesions = game.quarter(team)
+    print ''
+    print 'TOTAL POINTS:', points
+    print 'POINTS/100POSS:', 100*float(points)/possesions
+
 
 def sim_possesions(team):
     points = 0
     for i in range(100):
-        points += game.possesion(team)
+        points += game.possesion(team)[0]
     print ''
     print 'TOTAL POINTS:', points
     for player in team.players:

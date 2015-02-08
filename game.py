@@ -1,32 +1,62 @@
 import player
 from random import uniform, random, randint
+from datetime import datetime, timedelta
 
-def possesion(team):
-    shot_clock = 24
+def quarter(t1, t2=None):
+    # Initiate game clock to 12:00 for each quarter. After each possesion
+    # subtract the time used for that possession until no time left
+    game_clock = timedelta(minutes = 12)
+    quarter_points = 0
+    possesions = 0
+
+    while game_clock > timedelta(0):
+        #print 'GAME CLOCK:', game_clock
+        points, possesion_time = possesion(t1, game_clock)
+        diff = timedelta(seconds = possesion_time)
+        game_clock -= diff
+        quarter_points += points
+        possesions += 1
+
+    return quarter_points, possesions
+
+
+def possesion(team, game_clock=timedelta(minutes = 12)):
+    # If less than 24 seconds left in quarter, 'turn off the shot clock'
+    if game_clock < timedelta(seconds = 24):
+        shot_clock = game_clock.seconds
+    else:
+        shot_clock = 24
 
     # Wait 3-6 seconds before initiating a play
     wait_time = randint(3, 6)
+    shot_clock -= wait_time
 
     # PG carries ball past half most times, else SG or SF
     random_cross_half = uniform(0, 100)
 
     if random_cross_half < 65:
-        points, passed_to, shot_clock = play(team.players[0], team)
+        points, passed_to, shot_clock = play(team.players[0], team,
+                                             shot_clock=shot_clock)
+        print 'START PLAYER:', team.players[0].name
     elif random_cross_half < 85:
-        points, passed_to, shot_clock = play(team.players[1], team)
+        points, passed_to, shot_clock = play(team.players[1], team,
+                                             shot_clock=shot_clock)
+        print 'START PLAYER:', team.players[1].name
     else:
-        points, passed_to, shot_clock = play(team.players[2], team)
+        points, passed_to, shot_clock = play(team.players[2], team,
+                                             shot_clock=shot_clock)
+        print 'START PLAYER:', team.players[2].name
 
     while shot_clock > 0 and passed_to != None:
-        #print 'PASSED TO:', team.players[passed_to].name
-        points, passed_to, shot_clock = play(team.players[passed_to])
+        print 'PASSED TO:', team.players[passed_to].name
+        points, passed_to, shot_clock = play(team.players[passed_to], shot_clock=shot_clock)
 
     #print 'POINTS:', points
-    return points
+    time_used = 24 - shot_clock
+    return points, time_used
 
 
 def play(off, deff=None, shot_clock=24):
-    print 'PLAYER:', off.name
     points = 0
     passed_to = None
 
@@ -36,13 +66,12 @@ def play(off, deff=None, shot_clock=24):
     elif shot_clock > 5:
         decision_time = randint(1, 4)
     else:
-        decision_time = randint(0, shot_clock)
+        decision_time = 0
     shot_clock -= decision_time
-    #print 'SHOT CLOCK:', shot_clock
 
     # Decide whether to shoot or pass, always shooting if less than 5 secs left
     random_sp = uniform(0, 100)
-    if random_sp < off.o_tendencies['shoot_pass'] and shot_clock > 5:
+    if random_sp < 1.5*off.o_tendencies['shoot_pass'] and shot_clock > 5:
         passed_to = attempt_pass(off)
         off.passes += 1
     else:
