@@ -89,24 +89,39 @@ def possesion(team, game_clock=timedelta(minutes = 12)):
     random_cross_half = uniform(0, 100)
 
     if random_cross_half < 55:
-        points, passed_to, shot_clock = play(team.players[0], team,
-                                             shot_clock=shot_clock)
+        current_player = team.players[0]
+        points, passed_to, off, shot_clock , ass = play(current_player, team,
+                                                  shot_clock=shot_clock)
     elif random_cross_half < 80:
-        points, passed_to, shot_clock = play(team.players[1], team,
-                                             shot_clock=shot_clock)
+        current_player = team.players[1]
+        points, passed_to, off, shot_clock, ass = play(current_player, team,
+                                                  shot_clock=shot_clock)
     else:
-        points, passed_to, shot_clock = play(team.players[2], team,
-                                             shot_clock=shot_clock)
+        current_player = team.players[2]
+        points, passed_to, off, shot_clock, ass = play(current_player, team,
+                                                  shot_clock=shot_clock)
 
+    next_player = current_player
     while shot_clock > 0 and passed_to != None:
-        points, passed_to, shot_clock = play(team.players[passed_to], shot_clock=shot_clock)
+        try:
+            current_player = off
+            next_player = team.players[passed_to]
+        except TypeError:
+            pass
+        points, passed_to, off, shot_clock, ass = play(team.players[passed_to], \
+                                                  shot_clock=shot_clock)
 
+
+    if points > 0 and current_player != next_player and ass:
+        #print 'ASSIST BY ', current_player.name
+        current_player.assists += 1
     #print 'POINTS:', points
     time_used = 24 - shot_clock
     return points, time_used
 
 
 def play(off, deff=None, shot_clock=24):
+    #print 'PLAYER: %s' % off.name
     points = 0
     passed_to = None
 
@@ -119,8 +134,12 @@ def play(off, deff=None, shot_clock=24):
         decision_time = 0
     shot_clock -= decision_time
 
-    # Decide whether to shoot or pass, always shooting if less than 5 secs left
-    # Players get more likely to shoot as shot clock gets lower
+    # Decide whether to shoot or pass, always shooting if less than 5 secs left.
+    # Players get more likely to shoot as shot clock gets lower. If decision
+    # time greater than 4 secs, any basket will be unassisted
+    assisted = True
+    if decision_time > 4:
+        assisted = False
     random_sp = random()
     urgent = 1 - (24 - shot_clock)/float(50)
     if random_sp < ((off.o_tendencies['shoot_pass'] - 50)/float(300) + urgent) \
@@ -137,7 +156,7 @@ def play(off, deff=None, shot_clock=24):
             points = attempt_drive(off)
     off.points += points
 
-    return points, passed_to, shot_clock
+    return points, passed_to, off, shot_clock, assisted
 
 def attempt_jumper(off, deff=None):
     points = 0

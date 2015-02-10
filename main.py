@@ -31,8 +31,8 @@ def sim_season(team1, team2, games=82):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        | PPG  |  FG%  | 3PT% | FGA/G |'
-        print '----------------------------------------------------'
+        print '|        Name        | PPG  |  FG%  | 3PT% | FGA/G | ASS/G'
+        print '----------------------------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
@@ -40,8 +40,9 @@ def sim_season(team1, team2, games=82):
             fg_string = '%.1f' % (100*float(p.fgm)/p.fga)
             fg3_string = '%.1f' % (100*float(p.fg3m)/p.fg3a)
             fgag = '%.1f' % (float(p.fga)/games)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|'.format(p.name,
-            ppg, fg_string, fg3_string, fgag, n=20, p=6, f=7)
+            apg = '%.1f' % (float(p.assists)/games)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|{5:<{p}}|'.format(p.name,
+            ppg, fg_string, fg3_string, fgag, apg, n=20, p=6, f=7)
 
     print ''
     t1ppg = '%.1f' % (float(team1.season_points)/games)
@@ -56,15 +57,15 @@ def sim_game(team1, team2):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        |Pts|  FG  | 3PT |'
+        print '|        Name        |Pts|  FG  | 3PT | AST |'
         print '---------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
             fg_string = '%s/%s' % (p.fgm, p.fga)
             fg3_string = '%s/%s' % (p.fg3m, p.fg3a)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|'.format(p.name,
-            p.points, fg_string, fg3_string, n=20, p=3, f=6, t=5)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|{4:<{p}}|'.format(p.name,
+            p.points, fg_string, fg3_string, p.assists, n=20, p=3, f=6, t=5)
 
     print ''
     if quarters_played == 4:
