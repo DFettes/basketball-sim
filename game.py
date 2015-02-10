@@ -38,6 +38,15 @@ def game(t1, t2):
         ot = quarter(t1, t2, turn, ot=True)
         quarters_played += 1
 
+    if t1.points > t2.points:
+        t1.wins += 1
+        t2.losses += 1
+    else:
+        t1.losses += 1
+        t2.wins += 1
+    t1.season_points += t1.points
+    t2.season_points += t2.points
+
     return quarters_played
 
 
@@ -79,10 +88,10 @@ def possesion(team, game_clock=timedelta(minutes = 12)):
     # PG carries ball past half most times, else SG or SF
     random_cross_half = uniform(0, 100)
 
-    if random_cross_half < 65:
+    if random_cross_half < 55:
         points, passed_to, shot_clock = play(team.players[0], team,
                                              shot_clock=shot_clock)
-    elif random_cross_half < 85:
+    elif random_cross_half < 80:
         points, passed_to, shot_clock = play(team.players[1], team,
                                              shot_clock=shot_clock)
     else:
@@ -103,7 +112,7 @@ def play(off, deff=None, shot_clock=24):
 
     # Hold ball while making a decision for a period of time depending on clock
     if shot_clock > 12:
-        decision_time = randint(1, 8)
+        decision_time = randint(1, 10)
     elif shot_clock > 5:
         decision_time = randint(1, 4)
     else:
@@ -111,8 +120,11 @@ def play(off, deff=None, shot_clock=24):
     shot_clock -= decision_time
 
     # Decide whether to shoot or pass, always shooting if less than 5 secs left
-    random_sp = uniform(0, 100)
-    if random_sp < 1.5*off.o_tendencies['shoot_pass'] and shot_clock > 5:
+    # Players get more likely to shoot as shot clock gets lower
+    random_sp = random()
+    urgent = 1 - (24 - shot_clock)/float(50)
+    if random_sp < ((off.o_tendencies['shoot_pass'] - 50)/float(300) + urgent) \
+    and shot_clock > 5:
         passed_to = attempt_pass(off)
         off.passes += 1
     else:
@@ -134,19 +146,19 @@ def attempt_jumper(off, deff=None):
     if random_range < off.shooting_range['close']:
         off.fg2a += 1
         random_close = random()
-        if random_close < 0.007*off.shooting['close']:
+        if random_close < 0.006*off.shooting['close']:
             off.fg2m += 1
             points += 2
     elif random_range < off.shooting_range['mid']:
         off.fg2a += 1
         random_close = random()
-        if random_close < 0.0065*off.shooting['mid']:
+        if random_close < 0.0055*off.shooting['mid']:
             off.fg2m += 1
             points += 2
     else:
         off.fg3a += 1
         random_close = random()
-        if random_close < 0.005*off.shooting['long']:
+        if random_close < 0.0048*off.shooting['long']:
             off.fg3m += 1
             points += 3
 
@@ -159,13 +171,13 @@ def attempt_drive(off, deff=None):
     if random_drive < off.o_tendencies['layup_dunk']:
         off.fg2a += 1
         random_layup = random()
-        if random_layup < 0.0080*off.driving['layups']:
+        if random_layup < 0.0065*off.driving['layups']:
             off.fg2m += 1
             points += 2
     else:
         off.fg2a += 1
         random_dunk = random()
-        if random_dunk < 0.0085*off.driving['dunking']:
+        if random_dunk < 0.0080*off.driving['dunking']:
             off.fg2m += 1
             points += 2
 
