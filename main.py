@@ -17,7 +17,12 @@ def main():
     p15 = player.Player('player 5', 5, floor=70, ceiling=90)
 
     t1 = team.Team('Simcoe Sabres', [p1, p2, p3, p4, p5])
+
     t2 = team.Team('McMaster Mauraduers', [p11, p12, p13, p14, p15])
+
+    # Make both teams' PG's passers
+    p1.o_tendencies['shoot_pass'] = 85
+    p2.o_tendencies['shoot_pass'] = 85
 
     #sim_game(t1, t2)
     sim_season(t1, t2, games=82)
@@ -31,8 +36,8 @@ def sim_season(team1, team2, games=82):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        | PPG  |  FG%  | 3PT% | FGA/G | ASS/G'
-        print '----------------------------------------------------------'
+        print '|        Name        | PPG  | ASS/G | FG%  | 3PT%  | FGA/G| TO/G | STL/G | BLK/G |'
+        print '----------------------------------------------------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
@@ -40,9 +45,12 @@ def sim_season(team1, team2, games=82):
             fg_string = '%.1f' % (100*float(p.fgm)/p.fga)
             fg3_string = '%.1f' % (100*float(p.fg3m)/p.fg3a)
             fgag = '%.1f' % (float(p.fga)/games)
-            apg = '%.1f' % (float(p.assists)/games)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|{5:<{p}}|'.format(p.name,
-            ppg, fg_string, fg3_string, fgag, apg, n=20, p=6, f=7)
+            apg = '%2.1f' % (float(p.assists)/games)
+            topg = '%.1f' % (float(p.turnovers)/games)
+            spg = '%.1f' % (float(p.steals)/games)
+            bpg = '%.1f' % (float(p.blocks)/games)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|{5:<{p}}|{6:<{p}}|{7:<{f}}|{8:<{f}}|'.format(p.name,
+            ppg, apg, fg_string, fg3_string, fgag, topg, spg, bpg, n=20, p=6, f=7)
 
     print ''
     t1ppg = '%.1f' % (float(team1.season_points)/games)
@@ -57,15 +65,15 @@ def sim_game(team1, team2):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        |Pts|  FG  | 3PT | AST |'
-        print '---------------------------------------'
+        print '|        Name        |Pts|  FG  | 3PT | AST | TO  | STL | BLK |'
+        print '--------------------------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
             fg_string = '%s/%s' % (p.fgm, p.fga)
             fg3_string = '%s/%s' % (p.fg3m, p.fg3a)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|{4:<{p}}|'.format(p.name,
-            p.points, fg_string, fg3_string, p.assists, n=20, p=3, f=6, t=5)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|{4:<{t}}|{5:<{t}}|{6:<{t}}|{7:<{t}}|'.format(p.name,
+            p.points, fg_string, fg3_string, p.assists, p.turnovers, p.steals, p.blocks, n=20, p=3, f=6, t=5)
 
     print ''
     if quarters_played == 4:

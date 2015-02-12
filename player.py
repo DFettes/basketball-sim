@@ -19,6 +19,15 @@ class Player():
     shooting_range = {'close': 0, 'mid': 0, 'long': 0}
     passing_choice = [0, 0, 0, 0, 0]
 
+    # Player offensive chance rolls
+    complete_pass = 0
+    protect_drive = 0
+
+    # Player defensive chance rolls
+    steal_pass = 0
+    steal_drive = 0
+    block_chance = 0
+
     # Player stats
     games = 0
     fga = 0
@@ -53,6 +62,19 @@ class Player():
         self.d_tendencies = tendencies_array[1]
         self.shooting_range = tendencies_array[2]
         self.passing_choice = tendencies_array[3]
+
+        self.complete_pass = self.skills['passing'] / float(100)
+        self.protect_drive = (0.60 * self.skills['dribbling'] + \
+                              0.40 * self.skills['speed']) / float(100)
+
+        self.steal_drive = (0.40 * self.defense['defense'] + \
+                            0.30 * self.skills['speed'] + \
+                            0.30 * self.defense['stealing']) / float(100)
+        self.steal_pass = (0.25 * self.defense['defense'] + \
+                           0.35 * self.skills['speed'] + \
+                           0.40 * self.defense['stealing']) / float(100)
+        self.block_chance = (0.80 * self.defense['blocking'] + \
+                           0.40 * self.defense['defense']) / float(750)
 
 
     def print_player(self):
@@ -90,9 +112,9 @@ def randomize_tendencies(position):
     shooting_range = {}
 
     for key in toks.DEF_OFFENSIVE:
-        o_tendencies[key] = random.randint(25, 75)
+        o_tendencies[key] = random.randint(40, 60)
     for key in toks.DEF_DEFENSIVE:
-        d_tendencies[key] = random.randint(25, 75)
+        d_tendencies[key] = random.randint(40, 60)
 
     total = 0
     shot_range = []
