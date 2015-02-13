@@ -2,6 +2,8 @@ import player
 
 class Team():
     name = ''
+    home = None
+    away = None
     players = []
     points = 0
     possesions = 0

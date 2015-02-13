@@ -23,8 +23,8 @@ def main():
     p1.o_tendencies['shoot_pass'] = 100
     p11.o_tendencies['shoot_pass'] = 100
 
-    #sim_game(t1, t2)
-    sim_season(t1, t2, games=82)
+    sim_game(t1, t2, pbp=True)
+    #sim_season(t1, t2, games=82)
 
 
 def sim_season(team1, team2, games=82):
@@ -59,8 +59,8 @@ def sim_season(team1, team2, games=82):
     print '%s: %s-%s  -  %s PPG' % (team1.name, team1.wins, team1.losses, t1ppg)
     print '%s: %s-%s  -  %s PPG' % (team2.name, team2.wins, team2.losses, t2ppg)
 
-def sim_game(team1, team2):
-    quarters_played = game.game(team1, team2)
+def sim_game(team1, team2, pbp=False):
+    quarters_played = game.game(team1, team2, pbp)
 
     for team in [team1, team2]:
         print ''

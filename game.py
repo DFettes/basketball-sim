@@ -2,42 +2,86 @@ import player
 from random import uniform, random, randint
 from datetime import datetime, timedelta
 
-TURNOVERS = ['stolen_pass', 'stripped_drive', 'blocked_shot', 'blocked_drive']
+TURNOVERS = ['pass stolen by', 'drive stripped by', '3 pointer blocked by', \
+    'mid-range jumpshot blocked by', 'inside shot blocked by''drive blocked by']
+MISSED_SHOTS = ['Layup missed by', 'Dunk missed by', 'Inside shot missed by', \
+                'Mid-range jumper missed by', '3 pointer missed by']
 
-def game(t1, t2):
+def game(t1, t2, pbp=False):
     quarters_played = 0
     t1.points = 0
     t1.possesions = 0
+    t1.away = True
     t2.points = 0
     t2.possesions = 0
+    t2.home = True
 
     # Opening tip
     rand_jumpball = random()
+    if pbp: print 'FIRST QUARTER'
+    if pbp: print ''
     if rand_jumpball < 0.5:
+        if pbp: print '%s won jump ball' % t1.name
         turn = 0
     else:
+        if pbp: print '%s won jump ball' % t2.name
         turn = 1
-    q1 = quarter(t1, t2, turn)
+    q1 = quarter(t1, t2, turn, pbp=pbp)
 
     # Team who looses tip gets possesion to start 2nd and 3rd
     if turn == 0:
-        q2 = quarter(t1, t2, 1)
-        q3 = quarter(t1, t2, 1)
-        q4 = quarter(t1, t2, 1)
+        if pbp: print ''
+        if pbp: print 'SECOND QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q2 = quarter(t1, t2, 1, pbp=pbp)
+        if pbp: print ''
+        if pbp: print 'THIRD QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q3 = quarter(t1, t2, 1, pbp=pbp)
+        if pbp: print ''
+        if pbp: print 'FOURTH QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q4 = quarter(t1, t2, 0, pbp=pbp)
     else:
-        q2 = quarter(t1, t2, 0)
-        q3 = quarter(t1, t2, 0)
-        q4 = quarter(t1, t2, 1)
+        if pbp: print ''
+        if pbp: print 'SECOND QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q2 = quarter(t1, t2, 0, pbp=pbp)
+        if pbp: print ''
+        if pbp: print 'THIRD QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q3 = quarter(t1, t2, 0, pbp=pbp)
+        if pbp: print ''
+        if pbp: print 'FOURTH QUARTER'
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
+        q4 = quarter(t1, t2, 1, pbp=pbp)
 
     quarters_played = 4
     # If score tied after 4 quarters, start each overtime with jump ball
     while t1.points == t2.points:
+        if pbp: print ''
+        if pbp: print 'OVERTIME %s' % (quarters_played - 3)
+        if pbp: print '%s: %s' % (t1.name, t1.points)
+        if pbp: print '%s: %s' % (t2.name, t2.points)
+        if pbp: print ''
         rand_jumpball = random()
         if rand_jumpball < 0.5:
             turn = 0
         else:
             turn = 1
-        ot = quarter(t1, t2, turn, ot=True)
+        ot = quarter(t1, t2, turn, ot=True, pbp=pbp)
         quarters_played += 1
 
     if t1.points > t2.points:
@@ -52,7 +96,7 @@ def game(t1, t2):
     return quarters_played
 
 
-def quarter(t1, t2, turn, ot=False):
+def quarter(t1, t2, turn, ot=False, pbp=False):
     # Initiate game clock to 12:00 for each quarter (5:00 for OT). After each
     # possesion subtract the time used for that possession until no time left
     if ot:
@@ -62,22 +106,24 @@ def quarter(t1, t2, turn, ot=False):
 
     # Alternate possesions between teams
     while game_clock > timedelta(0):
-        #print 'GAME CLOCK:', game_clock
         if turn % 2 == 0:
-            points, possesion_time, reb = possesion(t1, t2, game_clock)
+            points, possesion_time, reb, result = possesion(t1, t2, game_clock, pbp=pbp)
             t1.points += points
             t1.possesions += 1
         else:
-            points, possesion_time, reb = possesion(t2, t1, game_clock)
+            points, possesion_time, reb, result = possesion(t2, t1, game_clock, pbp=pbp)
             t2.points += points
             t2.possesions += 1
         diff = timedelta(seconds = possesion_time)
         game_clock -= diff
+        if game_clock < timedelta(0):
+            game_clock = timedelta(0)
+        if pbp: print '%s  -  %s-%s  -  %s' % (game_clock, t1.points, t2.points, result)
         if reb != 'off_rebound':
             turn += 1
 
 
-def possesion(team, deff_team, game_clock=timedelta(minutes = 12)):
+def possesion(team, deff_team, game_clock=timedelta(minutes = 12), pbp=False):
     # If less than 24 seconds left in quarter, 'turn off the shot clock'
     if game_clock < timedelta(seconds = 24):
         shot_clock = game_clock.seconds
@@ -94,44 +140,44 @@ def possesion(team, deff_team, game_clock=timedelta(minutes = 12)):
     if random_cross_half < 55:
         current_player = team.players[0]
         points, passed_to, off, \
-        shot_clock , ass, result = play(current_player, deff_team,
-                                        shot_clock=shot_clock)
+        shot_clock , ass, result, to = play(current_player, deff_team,
+                                        shot_clock=shot_clock, pbp=pbp)
     elif random_cross_half < 80:
         current_player = team.players[1]
         points, passed_to, off, \
-        shot_clock, ass, result = play(current_player, deff_team,
-                                       shot_clock=shot_clock)
+        shot_clock, ass, result, to = play(current_player, deff_team,
+                                       shot_clock=shot_clock, pbp=pbp)
     else:
         current_player = team.players[2]
         points, passed_to, off, \
-        shot_clock, ass, result = play(current_player, deff_team,
-                                       shot_clock=shot_clock)
+        shot_clock, ass, result, to = play(current_player, deff_team,
+                                       shot_clock=shot_clock, pbp=pbp)
 
     next_player = current_player
-    while shot_clock > 0 and passed_to != None and result not in TURNOVERS:
+    while shot_clock > 0 and passed_to != None and not to:
         try:
             current_player = off
             next_player = team.players[passed_to]
         except TypeError:
             pass
         points, passed_to, off, \
-        shot_clock, ass, result = play(team.players[passed_to], \
-                                  deff_team, shot_clock=shot_clock)
+        shot_clock, ass, result, to = play(team.players[passed_to], \
+                                  deff_team, shot_clock=shot_clock, pbp=pbp)
 
     if points > 0 and current_player != next_player and ass:
-        #print 'ASSIST BY ', current_player.name
         current_player.assists += 1
+        result += ', assisted by %s' % current_player.name
     time_used = 24 - shot_clock
 
     reb = None
-    if result == 'missed_shot':
-        reb = rebound(team, deff_team)
+    for m in MISSED_SHOTS:
+        if m in result:
+            reb = rebound(team, deff_team)
 
-    return points, time_used, reb
+    return points, time_used, reb, result
 
 
-def play(off, deff=None, shot_clock=24):
-    #print 'PLAYER: %s' % off.name
+def play(off, deff=None, shot_clock=24, pbp=False):
     points = 0
     passed_to = None
     result = None
@@ -160,14 +206,16 @@ def play(off, deff=None, shot_clock=24):
     else:
         random_dj = uniform(0, 100)
         if random_dj < off.o_tendencies['drive_jumper']:
-            #print 'JUMPER BY:', off.name
             points, result = attempt_jumper(off, deff)
         else:
-            #print 'DRIVE BY:', off.name
             points, result = attempt_drive(off, deff)
     off.points += points
 
-    return points, passed_to, off, shot_clock, assisted, result
+    to = False
+    for t in TURNOVERS:
+        if t in result:
+            to = True
+    return points, passed_to, off, shot_clock, assisted, result, to
 
 def attempt_jumper(off, deff=None):
     points = 0
@@ -180,38 +228,41 @@ def attempt_jumper(off, deff=None):
         off.fg2a += 1
         if rand_block < def_block_chance*0.5:
             defender.blocks += 1
-            return points, 'blocked_shot'
+            return points, '%s inside shot blocked by %s' \
+                            % (off.name, defender.name)
         random_close = random()
         if random_close < 0.006*off.shooting['close']:
             off.fg2m += 1
             points += 2
-            result = 'made_shot'
+            result = '%s made inside shot' % off.name
         else:
-            result = 'missed_shot'
+            result = 'Inside shot missed by %s' % off.name
     elif random_range < off.shooting_range['mid']:
         off.fg2a += 1
         if rand_block < def_block_chance*0.2:
             defender.blocks += 1
-            return points, 'blocked_shot'
+            return points, '%s mid-range jumpshot blocked by %s' \
+                            % (off.name, defender.name)
         random_close = random()
         if random_close < 0.0055*off.shooting['mid']:
             off.fg2m += 1
             points += 2
-            result = 'made_shot'
+            result = '%s made mid-range jumpshot' % off.name
         else:
-            result = 'missed_shot'
+            result = 'Mid-range jumpshot missed by %s' % off.name
     else:
         off.fg3a += 1
         if rand_block < def_block_chance*0.1:
             defender.blocks += 1
-            return points, 'blocked_shot'
+            return points, '%s 3 pointer blocked by %s' \
+                            % (off.name, defender.name)
         random_close = random()
         if random_close < 0.0048*off.shooting['long']:
             off.fg3m += 1
             points += 3
-            result = 'made_shot'
+            result = '%s made 3 pointer' % off.name
         else:
-            result = 'missed_shot'
+            result = '3 pointer missed by %s' % off.name
 
     return points, result
 
@@ -229,7 +280,7 @@ def attempt_drive(off, deff=None):
     if rand_protect > protect_ball:
         defender.steals += 1
         off.turnovers += 1
-        return points, 'stripped_drive'
+        return points, '%s drive stripped by %s' % (off.name, defender.name)
 
     # Decide whether attempting a layup or a dunk. Then combine attributes of
     # player's man defender, plus the two post defenders to calculate whether
@@ -267,27 +318,29 @@ def attempt_drive(off, deff=None):
         random_block = random()
         if random_block < total_block_chance:
             block_player.blocks += 1
-            return points, 'blocked_drive'
+            return points, '%s layup blocked by %s' \
+                            % (off.name, block_player.name)
         random_layup = random()
         if random_layup < 0.0065*off.driving['layups']:
             off.fg2m += 1
             points += 2
-            result = 'made_shot'
+            result = 'Layup made by %s' % off.name
         else:
-            result = 'missed_shot'
+            result = 'Layup missed by %s' % off.name
     else:
         off.fg2a += 1
         random_block = random()
         if random_block < 0.5*total_block_chance:
             block_player.blocks += 1
-            return points, 'blocked_drive'
+            return points, '%s dunk blocked by %s' \
+                            % (off.name, block_player.name)
         random_dunk = random()
         if random_dunk < 0.0080*off.driving['dunking']:
             off.fg2m += 1
             points += 2
-            result = 'made_shot'
+            result = 'Dunk made by %s' % off.name
         else:
-            result = 'missed_shot'
+            result = 'Dunk missed by %s' % off.name
 
     return points, result
 
@@ -316,7 +369,7 @@ def attempt_pass(off, deff):
     else:
         guarding_pass.steals += 1
         off.turnovers += 1
-        return pass_to, 'stolen_pass'
+        return pass_to, '%s pass stolen by %s' % (off.name, guarding_pass.name)
 
 def rebound(off, deff):
     # If attributes are equal, def team will get the rebound ~75% of the time
