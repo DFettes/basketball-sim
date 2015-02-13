@@ -41,6 +41,8 @@ class Player():
     points = 0
     assists = 0
     rebounds = 0
+    def_rebounds = 0
+    off_rebounds = 0
     turnovers = 0
     steals = 0
     blocks = 0
