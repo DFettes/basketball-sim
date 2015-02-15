@@ -2,7 +2,7 @@
 
 DEF_SHOOTING = {'close': 50, 'mid': 50, 'long': 50, 'ft': 50}
 DEF_DRIVING = {'layups': 50, 'dunking': 50}
-DEF_SKILLS = {'speed': 50, 'dribbling': 50, 'passing': 50}
+DEF_SKILLS = {'speed': 50, 'dribbling': 50, 'passing': 50, 'stamina': 50}
 DEF_DEFENSE = {'rebounding': 50, 'defense': 50, 'blocking': 50, 'stealing': 50}
 
 DEF_OFFENSIVE = {'shoot_pass': 50, 'drive_jumper': 50, 'layup_dunk': 50}

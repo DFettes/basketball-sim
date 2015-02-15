@@ -4,27 +4,37 @@ import game
 import random
 
 def main():
-    p1 = player.Player('Gopal Unibrownguy', 1, floor=70, ceiling=90)
-    p2 = player.Player('Dan Fettes', 2, floor=100, ceiling=100)
-    p3 = player.Player('Matt Nero', 3, floor=70, ceiling=90)
-    p4 = player.Player('Azhar Dewji', 4, floor=70, ceiling=90)
-    p5 = player.Player('Janarth K-something', 5, floor=70, ceiling=90)
+    p1 = player.Player('Kyle Lowry', 1, floor=70, ceiling=100)
+    p2 = player.Player('DeMar DeRozan', 2, floor=70, ceiling=100)
+    p3 = player.Player('James Johnson', 3, floor=70, ceiling=100)
+    p4 = player.Player('Amir Johnson', 4, floor=70, ceiling=100)
+    p5 = player.Player('Jonas Valanciunas', 5, floor=70, ceiling=100)
+    p6 = player.Player('Lou Williams', 1, floor=70, ceiling=100)
+    p7 = player.Player('Terrence Ross', 2, floor=70, ceiling=100)
+    p8 = player.Player('Bruno Caboclo', 3, floor=70, ceiling=100)
+    p9 = player.Player('Patrick Patterson', 4, floor=70, ceiling=100)
+    p10 = player.Player('Chuck Hayes', 5, floor=70, ceiling=100)
 
-    p11 = player.Player('Player 1', 1, floor=70, ceiling=90)
-    p12 = player.Player('Player 2', 2, floor=70, ceiling=90)
-    p13 = player.Player('Player 3', 3, floor=70, ceiling=90)
-    p14 = player.Player('Player 4', 4, floor=70, ceiling=90)
-    p15 = player.Player('player 5', 5, floor=70, ceiling=90)
+    p11 = player.Player('Sam Baskerville', 1, floor=70, ceiling=100)
+    p12 = player.Player('Brendan Tracey', 2, floor=70, ceiling=100)
+    p13 = player.Player('Connor Petterson', 3, floor=70, ceiling=100)
+    p14 = player.Player('Dan Fettes', 4, floor=100, ceiling=100)
+    p15 = player.Player('Rick Nydam', 5, floor=70, ceiling=100)
+    p16 = player.Player('James Tran', 1, floor=70, ceiling=100)
+    p17 = player.Player('Brett Mitchell', 2, floor=70, ceiling=100)
+    p18 = player.Player('David Teichrobe', 3, floor=70, ceiling=100)
+    p19 = player.Player('Mike North', 4, floor=70, ceiling=100)
+    p20 = player.Player('Logan Earnst', 5, floor=70, ceiling=100)
 
-    t1 = team.Team('Simcoe Sabres', [p1, p2, p3, p4, p5])
-    t2 = team.Team('McMaster Mauraduers', [p11, p12, p13, p14, p15])
+    t1 = team.Team('Toronto Raptors', [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
+    t2 = team.Team('Simcoe Sabres', [p11, p12, p13, p14, p15, p16, p17, p18, p19, p20])
 
     # Make both teams' PG's passers
     p1.o_tendencies['shoot_pass'] = 100
     p11.o_tendencies['shoot_pass'] = 100
 
-    sim_game(t1, t2, pbp=True)
-    #sim_season(t1, t2, games=82)
+    #sim_game(t1, t2, pbp=True)
+    sim_season(t1, t2, games=82)
 
 
 def sim_season(team1, team2, games=82):
@@ -35,8 +45,8 @@ def sim_season(team1, team2, games=82):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        | PPG  | ASS/G | FG%  | 3PT%  | FGA/G| TO/G | STL/G | BLK/G | REB/G |OREB/G |'
-        print '--------------------------------------------------------------------------------------------------'
+        print '|        Name        | PPG  | ASS/G | FG%  | 3PT%  | FGA/G| TO/G | STL/G | BLK/G | REB/G |OREB/G | MIN/G |'
+        print '----------------------------------------------------------------------------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
@@ -50,8 +60,14 @@ def sim_season(team1, team2, games=82):
             bpg = '%.1f' % (float(p.blocks)/games)
             rpg = '%.1f' % (float(p.rebounds)/games)
             orpg = '%.1f' % (float(p.off_rebounds)/games)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|{5:<{p}}|{6:<{p}}|{7:<{f}}|{8:<{f}}|{9:<{f}}|{10:<{f}}|'.format(p.name,
-            ppg, apg, fg_string, fg3_string, fgag, topg, spg, bpg, rpg, orpg, n=20, p=6, f=7)
+            avg_secs = p.time_played.total_seconds()/games
+            hours, remainder = divmod(avg_secs, 3600)
+            minutes, seconds = divmod(remainder, 60)
+            minutes = '%02d' % minutes
+            seconds = '%02d' % seconds
+            mpg = '%s:%s' % (minutes, seconds)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{p}}|{4:<{f}}|{5:<{p}}|{6:<{p}}|{7:<{f}}|{8:<{f}}|{9:<{f}}|{10:<{f}}|{11:<{f}}|'.format(p.name,
+            ppg, apg, fg_string, fg3_string, fgag, topg, spg, bpg, rpg, orpg, mpg, n=20, p=6, f=7)
 
     print ''
     t1ppg = '%.1f' % (float(team1.season_points)/games)
@@ -66,15 +82,15 @@ def sim_game(team1, team2, pbp=False):
         print ''
         print team.name
         name_width = max([len(p.name) for p in team.players])
-        print '|        Name        |Pts|  FG  | 3PT | AST | TO  | STL | BLK | REB | OREB |'
-        print '----------------------------------------------------------------------------'
+        print '|        Name        |Pts|  FG  | 3PT | AST | TO  | STL | BLK | REB | OREB | MINS |'
+        print '----------------------------------------------------------------------------------'
         for p in team.players:
             p.fga = p.fg2a + p.fg3a
             p.fgm = p.fg2m + p.fg3m
             fg_string = '%s/%s' % (p.fgm, p.fga)
             fg3_string = '%s/%s' % (p.fg3m, p.fg3a)
-            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|{4:<{t}}|{5:<{t}}|{6:<{t}}|{7:<{t}}|{8:<{t}}|{9:<{f}}|'.format(p.name,
-            p.points, fg_string, fg3_string, p.assists, p.turnovers, p.steals, p.blocks, p.rebounds, p.off_rebounds, n=20, p=3, f=6, t=5)
+            print '|{0:<{n}}|{1:<{p}}|{2:<{f}}|{3:<{t}}|{4:<{t}}|{5:<{t}}|{6:<{t}}|{7:<{t}}|{8:<{t}}|{9:<{f}}|{10:<{f}}|'.format(p.name,
+            p.points, fg_string, fg3_string, p.assists, p.turnovers, p.steals, p.blocks, p.rebounds, p.off_rebounds, p.time_played, n=20, p=3, f=6, t=5)
 
     print ''
     if quarters_played == 4:

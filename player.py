@@ -1,5 +1,6 @@
 import toks
 import random
+from datetime import timedelta
 
 POSITIONS = {1: 'PG', 2: 'SG', 3: 'SF', 4: 'PF', 5: 'C'}
 
@@ -10,7 +11,7 @@ class Player():
     # Player skills
     shooting = {'close': 0, 'mid': 0, 'long': 0, 'ft': 0}
     driving = {'layups': 0, 'dunking': 0}
-    skills = {'speed': 0, 'dribbling': 0, 'passing': 0}
+    skills = {'speed': 0, 'dribbling': 0, 'passing': 0, 'stamina': 0}
     defense = {'rebounding': 0, 'defense': 0, 'blocking': 0, 'stealing': 0}
 
     # Player tendencies
@@ -29,6 +30,7 @@ class Player():
     block_chance = 0
 
     # Player stats
+    energy = 100
     games = 0
     fga = 0
     fg2a = 0
@@ -47,6 +49,7 @@ class Player():
     steals = 0
     blocks = 0
     passes = 0
+    time_played = timedelta(0)
 
     def __init__(self, name, position, floor=50, ceiling=100):
         self.name = name
