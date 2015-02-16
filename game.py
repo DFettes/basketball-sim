@@ -267,7 +267,7 @@ def attempt_jumper(off, deff, open_factor):
             return points, '%s inside shot blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.006*off.shooting['close']*open_factor:
+        if random_close < max(0.0035, 0.006*off.shooting['close'])*open_factor:
             off.fg2m += 1
             points += 2
             result = '%s made inside shot' % off.name
@@ -280,7 +280,7 @@ def attempt_jumper(off, deff, open_factor):
             return points, '%s mid-range jumpshot blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.0055*off.shooting['mid']*open_factor:
+        if random_close < max(0.0025, 0.0055*off.shooting['mid'])*open_factor:
             off.fg2m += 1
             points += 2
             result = '%s made mid-range jumpshot' % off.name
@@ -293,7 +293,7 @@ def attempt_jumper(off, deff, open_factor):
             return points, '%s 3 pointer blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.0048*off.shooting['long']*open_factor:
+        if random_close < max(0.0015, 0.0048*off.shooting['long'])*open_factor:
             off.fg3m += 1
             points += 3
             result = '%s made 3 pointer' % off.name
@@ -357,7 +357,7 @@ def attempt_drive(off, deff, open_factor):
             return points, '%s layup blocked by %s' \
                             % (off.name, block_player.name)
         random_layup = random()
-        if random_layup < 0.0065*off.driving['layups']*open_factor:
+        if random_layup < max(0.0045, 0.0065*off.driving['layups'])*open_factor:
             off.fg2m += 1
             points += 2
             result = 'Layup made by %s' % off.name
@@ -371,7 +371,7 @@ def attempt_drive(off, deff, open_factor):
             return points, '%s dunk blocked by %s' \
                             % (off.name, block_player.name)
         random_dunk = random()
-        if random_dunk < 0.0080*off.driving['dunking']*open_factor:
+        if random_dunk < max(0.004, 0.0080*off.driving['dunking'])*open_factor:
             off.fg2m += 1
             points += 2
             result = 'Dunk made by %s' % off.name
