@@ -165,30 +165,32 @@ def possesion(team, deff_team, game_clock=timedelta(minutes = 12), pbp=False):
 
     if random_cross_half < 55:
         current_player = team.on_floor[0]
-        points, passed_to, off, \
-        shot_clock , ass, result, to = play(current_player, deff_team,
-                                        shot_clock=shot_clock, pbp=pbp)
     elif random_cross_half < 80:
         current_player = team.on_floor[1]
-        points, passed_to, off, \
-        shot_clock, ass, result, to = play(current_player, deff_team,
-                                       shot_clock=shot_clock, pbp=pbp)
     else:
         current_player = team.on_floor[2]
-        points, passed_to, off, \
-        shot_clock, ass, result, to = play(current_player, deff_team,
-                                       shot_clock=shot_clock, pbp=pbp)
+
+    points, passed_to, off, shot_clock, \
+    ass, result, to = play(current_player, deff_team,
+                           shot_clock=shot_clock, pbp=pbp, first=True)
 
     next_player = current_player
+    # If player is an exceptional passer ( > 70 ) then give slight boost to the
+    # next player's chances if they choose to shoot. Do not penalize bad passers
+    # as they are already more likely to turn over the ball
     while shot_clock > 0 and passed_to != None and not to:
         try:
             current_player = off
+            open_factor = (100 + current_player.skills['passing'] - 70) / \
+                           float(100)
+            open_factor = max(1, open_factor)
             next_player = team.on_floor[passed_to]
         except TypeError:
             pass
         points, passed_to, off, \
         shot_clock, ass, result, to = play(team.on_floor[passed_to], \
-                                  deff_team, shot_clock=shot_clock, pbp=pbp)
+                                  deff_team, shot_clock=shot_clock, pbp=pbp, \
+                                  open_factor=open_factor)
 
     if points > 0 and current_player != next_player and ass:
         current_player.assists += 1
@@ -206,7 +208,7 @@ def possesion(team, deff_team, game_clock=timedelta(minutes = 12), pbp=False):
 
     return points, time_used, reb, result
 
-def play(off, deff, shot_clock=24, pbp=False):
+def play(off, deff, shot_clock=24, pbp=False, first=False, open_factor=1):
     points = 0
     passed_to = None
     result = None
@@ -222,12 +224,17 @@ def play(off, deff, shot_clock=24, pbp=False):
 
     # Decide whether to shoot or pass, always shooting if less than 5 secs left.
     # Players get more likely to shoot as shot clock gets lower. If decision
-    # time greater than 4 secs, any basket will be unassisted
+    # time greater than 4 secs, any basket will be unassisted. If first play
+    # of the possesion, more likely to pass to prevent PG's from shooting
+    # too often
     assisted = True
     if decision_time > 4:
         assisted = False
     random_sp = random()
-    urgent = 1 - (24 - shot_clock)/float(25)
+    if first:
+        urgent = 1
+    else:
+        urgent = 1 - (24 - shot_clock)/float(25)
     if random_sp < ((off.o_tendencies['shoot_pass'] - 50)/float(300) + urgent) \
     and shot_clock > 5:
         passed_to, result = attempt_pass(off, deff)
@@ -235,9 +242,9 @@ def play(off, deff, shot_clock=24, pbp=False):
     else:
         random_dj = uniform(0, 100)
         if random_dj < off.o_tendencies['drive_jumper']:
-            points, result = attempt_jumper(off, deff)
+            points, result = attempt_jumper(off, deff, open_factor)
         else:
-            points, result = attempt_drive(off, deff)
+            points, result = attempt_drive(off, deff, open_factor)
     off.points += points
 
     to = False
@@ -246,7 +253,7 @@ def play(off, deff, shot_clock=24, pbp=False):
             to = True
     return points, passed_to, off, shot_clock, assisted, result, to
 
-def attempt_jumper(off, deff=None):
+def attempt_jumper(off, deff, open_factor):
     points = 0
     random_range = uniform(0, 100)
     defender = deff.on_floor[off.position - 1]
@@ -260,7 +267,7 @@ def attempt_jumper(off, deff=None):
             return points, '%s inside shot blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.006*off.shooting['close']:
+        if random_close < 0.006*off.shooting['close']*open_factor:
             off.fg2m += 1
             points += 2
             result = '%s made inside shot' % off.name
@@ -273,7 +280,7 @@ def attempt_jumper(off, deff=None):
             return points, '%s mid-range jumpshot blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.0055*off.shooting['mid']:
+        if random_close < 0.0055*off.shooting['mid']*open_factor:
             off.fg2m += 1
             points += 2
             result = '%s made mid-range jumpshot' % off.name
@@ -286,7 +293,7 @@ def attempt_jumper(off, deff=None):
             return points, '%s 3 pointer blocked by %s' \
                             % (off.name, defender.name)
         random_close = random()
-        if random_close < 0.0048*off.shooting['long']:
+        if random_close < 0.0048*off.shooting['long']*open_factor:
             off.fg3m += 1
             points += 3
             result = '%s made 3 pointer' % off.name
@@ -295,7 +302,7 @@ def attempt_jumper(off, deff=None):
 
     return points, result
 
-def attempt_drive(off, deff=None):
+def attempt_drive(off, deff, open_factor):
     points = 0
 
     # First calculate whether player is stripped of the ball by their defender
@@ -350,7 +357,7 @@ def attempt_drive(off, deff=None):
             return points, '%s layup blocked by %s' \
                             % (off.name, block_player.name)
         random_layup = random()
-        if random_layup < 0.0065*off.driving['layups']:
+        if random_layup < 0.0065*off.driving['layups']*open_factor:
             off.fg2m += 1
             points += 2
             result = 'Layup made by %s' % off.name
@@ -364,7 +371,7 @@ def attempt_drive(off, deff=None):
             return points, '%s dunk blocked by %s' \
                             % (off.name, block_player.name)
         random_dunk = random()
-        if random_dunk < 0.0080*off.driving['dunking']:
+        if random_dunk < 0.0080*off.driving['dunking']*open_factor:
             off.fg2m += 1
             points += 2
             result = 'Dunk made by %s' % off.name

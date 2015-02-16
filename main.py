@@ -4,34 +4,30 @@ import game
 import random
 
 def main():
-    p1 = player.Player('Kyle Lowry', 1, floor=70, ceiling=100)
-    p2 = player.Player('DeMar DeRozan', 2, floor=70, ceiling=100)
-    p3 = player.Player('James Johnson', 3, floor=70, ceiling=100)
-    p4 = player.Player('Amir Johnson', 4, floor=70, ceiling=100)
-    p5 = player.Player('Jonas Valanciunas', 5, floor=70, ceiling=100)
-    p6 = player.Player('Lou Williams', 1, floor=70, ceiling=100)
-    p7 = player.Player('Terrence Ross', 2, floor=70, ceiling=100)
-    p8 = player.Player('Bruno Caboclo', 3, floor=70, ceiling=100)
-    p9 = player.Player('Patrick Patterson', 4, floor=70, ceiling=100)
-    p10 = player.Player('Chuck Hayes', 5, floor=70, ceiling=100)
+    p1 = player.Player('Kyle Lowry', 1, floor=70, ceiling=80)
+    p2 = player.Player('DeMar DeRozan', 2, floor=70, ceiling=80)
+    p3 = player.Player('James Johnson', 3, floor=70, ceiling=80)
+    p4 = player.Player('Amir Johnson', 4, floor=70, ceiling=80)
+    p5 = player.Player('Jonas Valanciunas', 5, floor=70, ceiling=80)
+    p6 = player.Player('Lou Williams', 1, floor=70, ceiling=80)
+    p7 = player.Player('Terrence Ross', 2, floor=70, ceiling=80)
+    p8 = player.Player('Bruno Caboclo', 3, floor=70, ceiling=80)
+    p9 = player.Player('Patrick Patterson', 4, floor=70, ceiling=80)
+    p10 = player.Player('Chuck Hayes', 5, floor=70, ceiling=80)
 
-    p11 = player.Player('Sam Baskerville', 1, floor=70, ceiling=100)
-    p12 = player.Player('Brendan Tracey', 2, floor=70, ceiling=100)
-    p13 = player.Player('Connor Petterson', 3, floor=70, ceiling=100)
-    p14 = player.Player('Dan Fettes', 4, floor=100, ceiling=100)
-    p15 = player.Player('Rick Nydam', 5, floor=70, ceiling=100)
-    p16 = player.Player('James Tran', 1, floor=70, ceiling=100)
-    p17 = player.Player('Brett Mitchell', 2, floor=70, ceiling=100)
-    p18 = player.Player('David Teichrobe', 3, floor=70, ceiling=100)
-    p19 = player.Player('Mike North', 4, floor=70, ceiling=100)
-    p20 = player.Player('Logan Earnst', 5, floor=70, ceiling=100)
+    p11 = player.Player('Sam Baskerville', 1, floor=70, ceiling=80)
+    p12 = player.Player('Brendan Tracey', 2, floor=70, ceiling=80)
+    p13 = player.Player('Connor Petterson', 3, floor=70, ceiling=80)
+    p14 = player.Player('Dan Fettes', 4, floor=90, ceiling=100)
+    p15 = player.Player('Rick Nydam', 5, floor=70, ceiling=80)
+    p16 = player.Player('James Tran', 1, floor=70, ceiling=80)
+    p17 = player.Player('Brett Mitchell', 2, floor=70, ceiling=80)
+    p18 = player.Player('David Teichrobe', 3, floor=70, ceiling=80)
+    p19 = player.Player('Mike North', 4, floor=70, ceiling=80)
+    p20 = player.Player('Logan Earnst', 5, floor=70, ceiling=80)
 
     t1 = team.Team('Toronto Raptors', [p1, p2, p3, p4, p5, p6, p7, p8, p9, p10])
     t2 = team.Team('Simcoe Sabres', [p11, p12, p13, p14, p15, p16, p17, p18, p19, p20])
-
-    # Make both teams' PG's passers
-    p1.o_tendencies['shoot_pass'] = 100
-    p11.o_tendencies['shoot_pass'] = 100
 
     #sim_game(t1, t2, pbp=True)
     sim_season(t1, t2, games=82)
@@ -52,7 +48,10 @@ def sim_season(team1, team2, games=82):
             p.fgm = p.fg2m + p.fg3m
             ppg = '%.1f' % (float(p.points)/games)
             fg_string = '%.1f' % (100*float(p.fgm)/p.fga)
-            fg3_string = '%.1f' % (100*float(p.fg3m)/p.fg3a)
+            try:
+                fg3_string = '%.1f' % (100*float(p.fg3m)/p.fg3a)
+            except:
+                fg3_string = '0.0'
             fgag = '%.1f' % (float(p.fga)/games)
             apg = '%2.1f' % (float(p.assists)/games)
             topg = '%.1f' % (float(p.turnovers)/games)
